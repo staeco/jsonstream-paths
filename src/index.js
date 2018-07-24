@@ -1,11 +1,9 @@
 import Parser from 'jsonparse'
 import through from 'through2'
+import eos from 'end-of-stream'
 
-const modes = {
-  [0x81]: 'object',
-  [0x82]: 'array'
-}
 export default function () {
+  let pathsUsed = {}
   const parser = new Parser()
   const stream = through((chunk, _, cb) => {
     if (typeof chunk === 'string') chunk = new Buffer(chunk)
@@ -13,12 +11,24 @@ export default function () {
     cb()
   })
 
-  parser.onValue = function () {
-    const actualPath = this.stack.slice(1).map((e) => e.key).concat([ this.key ])
-    stream.emit('data', {
-      path: actualPath,
-      mode: modes[this.mode] || 'value'
-    })
+  eos(stream, () => pathsUsed = null) // free cache memory
+
+  parser.onValue = function (value) {
+    const fullPath = this.stack.slice(1).map((e) => e.key).concat([ this.key ])
+    const isIterable = typeof value === 'object'
+    let path = fullPath.map((i) =>
+      typeof i === 'number' ? '*' : i
+    ).join('.') || '*'
+
+    if (path.indexOf('*') === -1) {
+      if (!isIterable) return // not iterable, end of the line!
+      path += '.*'
+    }
+
+    if (!pathsUsed[path]) {
+      pathsUsed[path] = true
+      stream.emit('data', path)
+    }
     for (let k in this.stack) {
       if (!Object.isFrozen(this.stack[k])) {
         this.stack[k].value = null
