@@ -5,12 +5,11 @@ exports.__esModule = true;
 exports.default = function () {
   let pathsUsed = {};
   const parser = new _jsonparse2.default();
-  const stream = (0, _through2.default)((chunk, _, cb) => {
-    if (typeof chunk === 'string') chunk = new Buffer(chunk);
+  const stream = _through2.default.obj((chunk, _, cb) => {
+    if (typeof chunk === 'string') chunk = Buffer.from(chunk);
     parser.write(chunk);
     cb();
   });
-
   (0, _endOfStream2.default)(stream, () => pathsUsed = null); // free cache memory
 
   parser.onValue = function (value) {
@@ -25,7 +24,7 @@ exports.default = function () {
 
     if (!pathsUsed[path]) {
       pathsUsed[path] = true;
-      stream.emit('data', path);
+      stream.push(path);
     }
     for (let k in this.stack) {
       if (!Object.isFrozen(this.stack[k])) {

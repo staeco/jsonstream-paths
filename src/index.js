@@ -1,16 +1,15 @@
 import Parser from 'jsonparse'
-import through from 'through2'
+import through2 from 'through2'
 import eos from 'end-of-stream'
 
 export default function () {
   let pathsUsed = {}
   const parser = new Parser()
-  const stream = through((chunk, _, cb) => {
-    if (typeof chunk === 'string') chunk = new Buffer(chunk)
+  const stream = through2.obj((chunk, _, cb) => {
+    if (typeof chunk === 'string') chunk = Buffer.from(chunk)
     parser.write(chunk)
     cb()
   })
-
   eos(stream, () => pathsUsed = null) // free cache memory
 
   parser.onValue = function (value) {
@@ -27,7 +26,7 @@ export default function () {
 
     if (!pathsUsed[path]) {
       pathsUsed[path] = true
-      stream.emit('data', path)
+      stream.push(path)
     }
     for (let k in this.stack) {
       if (!Object.isFrozen(this.stack[k])) {
@@ -37,8 +36,8 @@ export default function () {
   }
 
   parser.onError = function (err) {
-    if(err.message.indexOf('at position') > -1)
-      err.message = `Invalid JSON (${ err.message })`
+    if (err.message.indexOf('at position') > -1)
+      err.message = `Invalid JSON (${err.message})`
     stream.emit('error', err)
   }
 
