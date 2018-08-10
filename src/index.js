@@ -1,8 +1,9 @@
 import Parser from 'jsonparse'
 import through2 from 'through2'
 import eos from 'end-of-stream'
+import isObject from 'is-plain-object'
 
-export default function () {
+export default function ({ filter }={}) {
   let pathsUsed = {}
   const parser = new Parser()
   const stream = through2.obj((chunk, _, cb) => {
@@ -14,7 +15,8 @@ export default function () {
 
   parser.onValue = function (value) {
     const fullPath = this.stack.slice(1).map((e) => e.key).concat([ this.key ])
-    const isIterable = typeof value === 'object'
+    // null is an object
+    const isIterable = Array.isArray(value) || isObject(value) || value == null
     let path = fullPath.map((i) =>
       typeof i === 'number' ? '*' : i
     ).join('.') || '*'
@@ -24,7 +26,8 @@ export default function () {
       path += '.*'
     }
 
-    if (!pathsUsed[path]) {
+    const passedFilter = !filter || filter(path, value, isIterable)
+    if (passedFilter && !pathsUsed[path]) {
       pathsUsed[path] = true
       stream.push(path)
     }
