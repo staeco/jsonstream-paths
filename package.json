@@ -1,6 +1,6 @@
 {
   "name": "jsonstream-paths",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "Get all possible paths for JSONStream",
   "main": "dist/index.js",
   "keywords": [],

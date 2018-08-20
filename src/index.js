@@ -7,6 +7,7 @@ export default function ({ filter }={}) {
   let pathsUsed = {}
   const parser = new Parser()
   const stream = through2.obj((chunk, _, cb) => {
+    if (isObject(chunk) || Array.isArray(chunk)) chunk = JSON.stringify(chunk)
     if (typeof chunk === 'string') chunk = Buffer.from(chunk)
     parser.write(chunk)
     cb()

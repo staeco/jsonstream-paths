@@ -6,6 +6,7 @@ exports.default = function ({ filter } = {}) {
   let pathsUsed = {};
   const parser = new _jsonparse2.default();
   const stream = _through2.default.obj((chunk, _, cb) => {
+    if ((0, _isPlainObject2.default)(chunk) || Array.isArray(chunk)) chunk = JSON.stringify(chunk);
     if (typeof chunk === 'string') chunk = Buffer.from(chunk);
     parser.write(chunk);
     cb();
