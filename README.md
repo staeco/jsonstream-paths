@@ -114,5 +114,5 @@ stream.on('data', (path) => {
 [npm-url]: https://npmjs.org/package/jsonstream-paths
 [npm-image]: http://img.shields.io/npm/v/jsonstream-paths.svg
 
-[travis-url]: https://travis-ci.org/contra/jsonstream-paths
-[travis-image]: https://travis-ci.org/contra/jsonstream-paths.png?branch=master
+[travis-url]: https://travis-ci.org/staeco/jsonstream-paths
+[travis-image]: https://travis-ci.org/staeco/jsonstream-paths.png?branch=master
