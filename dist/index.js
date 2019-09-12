@@ -6,7 +6,7 @@ exports.default = function ({ filter } = {}) {
   let pathsUsed = {};
   const parser = new _jsonparse2.default();
   const stream = _through2.default.obj((chunk, _, cb) => {
-    if ((0, _isPlainObject2.default)(chunk) || Array.isArray(chunk)) chunk = JSON.stringify(chunk);
+    if ((0, _isPlainObj2.default)(chunk) || Array.isArray(chunk)) chunk = JSON.stringify(chunk);
     if (typeof chunk === 'string') chunk = Buffer.from(chunk);
     parser.write(chunk);
     cb();
@@ -16,7 +16,7 @@ exports.default = function ({ filter } = {}) {
   parser.onValue = function (value) {
     const fullPath = this.stack.slice(1).map(e => e.key).concat([this.key]);
     // null is an object
-    const isIterable = Array.isArray(value) || (0, _isPlainObject2.default)(value) || value == null;
+    const isIterable = Array.isArray(value) || (0, _isPlainObj2.default)(value) || value == null;
     let path = fullPath.map(i => typeof i === 'number' ? '*' : i).join('.') || '*';
 
     if (path.indexOf('*') === -1) {
@@ -56,9 +56,9 @@ var _endOfStream = require('end-of-stream');
 
 var _endOfStream2 = _interopRequireDefault(_endOfStream);
 
-var _isPlainObject = require('is-plain-object');
+var _isPlainObj = require('is-plain-obj');
 
-var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
+var _isPlainObj2 = _interopRequireDefault(_isPlainObj);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 

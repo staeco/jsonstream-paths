@@ -1,7 +1,7 @@
 import Parser from 'jsonparse'
 import through2 from 'through2'
 import eos from 'end-of-stream'
-import isObject from 'is-plain-object'
+import isObject from 'is-plain-obj'
 
 export default function ({ filter }={}) {
   let pathsUsed = {}
