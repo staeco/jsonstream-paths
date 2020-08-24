@@ -100,7 +100,7 @@ describe('stream', () => {
   })
   it('should work on array of actual objects', async () => {
     const sample = [ { b: 1 }, { b: 2 }, { b: 3 } ]
-    const stream = streamify.obj([ sample ]).pipe(get())
+    const stream = streamify.object([ sample ]).pipe(get())
     const res = await collect.array(stream)
     should.exist(res)
     res.should.eql([ '*.b', '*' ])

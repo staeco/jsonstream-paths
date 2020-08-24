@@ -1,7 +1,7 @@
 import Parser from 'jsonparse'
 import through2 from 'through2'
-import eos from 'end-of-stream'
 import isObject from 'is-plain-obj'
+import { finished } from 'readable-stream'
 
 export default function ({ filter }={}) {
   let pathsUsed = {}
@@ -12,7 +12,7 @@ export default function ({ filter }={}) {
     parser.write(chunk)
     cb()
   })
-  eos(stream, () => pathsUsed = null) // free cache memory
+  finished(stream, () => pathsUsed = null) // free cache memory
 
   parser.onValue = function (value) {
     const fullPath = this.stack.slice(1).map((e) => e.key).concat([ this.key ])
@@ -32,16 +32,19 @@ export default function ({ filter }={}) {
       pathsUsed[path] = true
       stream.push(path)
     }
-    for (let k in this.stack) {
-      if (!Object.isFrozen(this.stack[k])) {
-        this.stack[k].value = null
+
+    // free memory
+    Object.values(this.stack, (v) => {
+      if (!Object.isFrozen(v)) {
+        v.value = null
       }
-    }
+    })
   }
 
   parser.onError = function (err) {
-    if (err.message.indexOf('at position') > -1)
+    if (err.message.indexOf('at position') > -1) {
       err.message = `Invalid JSON (${err.message})`
+    }
     stream.emit('error', err)
   }
 
